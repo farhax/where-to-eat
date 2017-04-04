@@ -5,6 +5,7 @@ const MAP_API_KEY = 'AIzaSyCbnHD6EXbvX5f-FWEa7mCRVLp8qRB7K0w';
 export default {
   google: null,
   map: null,
+  service: null,
   manualAddMode: false,
 
   loadMap(elementId) {
@@ -12,6 +13,7 @@ export default {
       const { center, zoom } = this.loadMapView();
 
       GoogleMapsLoader.KEY = MAP_API_KEY;
+      GoogleMapsLoader.LIBRARIES = ['places'];
       GoogleMapsLoader.load((google) => {
         this.google = google;
         this.map = new google.maps.Map(global.document.getElementById(elementId), {
@@ -19,6 +21,8 @@ export default {
           scrollwheel: true,
           zoom,
         });
+
+        this.service = new google.maps.places.PlacesService(this.map);
 
         google.maps.event.addListenerOnce(this.map, 'idle', () => {
           resolve();
@@ -56,7 +60,7 @@ export default {
 
     return {
       center: latLngCenter || { lat: 57.784782, lng: 14.2216445 },
-      zoom: zoom || 11,
+      zoom: zoom || 12,
     };
   },
 };

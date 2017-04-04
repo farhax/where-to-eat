@@ -32,11 +32,20 @@
           <h3>Radius</h3>
           <input type="range" v-model="circleRadiusString" min="1" max="10000"/>
           <p>{{ circleRadius }}</p>
-          <button type="button" >Find places</button>
+          <button type="button" v-on:click="searchNearby">Search</button>
+          <button type="button" v-on:click="clearResult">Clear</button>
         </template>
       </div>
       <div class="col-sm-8">
         <div id="map"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-12" v-if="places">
+        <hr>
+        <ul class="places-list">
+          <place-item v-for="place in places" v-bind:place="place" />
+        </ul>
       </div>
     </div>
   </div>
@@ -44,6 +53,7 @@
 
 <script>
 import LocationItem from '@/components/locations/LocationItem';
+import PlaceItem from '@/components/locations/PlaceItem';
 import gmap from '@/services/map';
 
 export default {
@@ -52,6 +62,7 @@ export default {
     return {
       circles: [],
       markers: [],
+      places: [],
       circleRadiusString: '1000',
       localPosition: false,
       localPositionLoading: false,
@@ -66,6 +77,7 @@ export default {
   },
   components: {
     LocationItem,
+    PlaceItem,
   },
   methods: {
     findMyPosition() {
@@ -140,6 +152,24 @@ export default {
         });
       }
     },
+    searchNearby() {
+      console.log(this.centerMarker);
+
+      const request = {
+        location: this.centerMarker.getCenter(),
+        radius: this.circleRadiusString,
+        types: ['restaurant'],
+      };
+
+      gmap.service.nearbySearch(request, (results, status) => {
+        if (status === gmap.google.maps.places.PlacesServiceStatus.OK) {
+          this.places = results;
+        }
+      });
+    },
+    clearResult() {
+      this.places = [];
+    },
   },
   mounted() {
     gmap.loadMap('map').then(() => {
@@ -161,5 +191,8 @@ export default {
 <style>
   #map {
     height: 500px;
+  }
+  .places-list {
+    list-style: none;
   }
 </style>

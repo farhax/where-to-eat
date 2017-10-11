@@ -153,8 +153,6 @@ export default {
       }
     },
     searchNearby() {
-      console.log(this.centerMarker);
-
       const request = {
         location: this.centerMarker.getCenter(),
         radius: this.circleRadiusString,
